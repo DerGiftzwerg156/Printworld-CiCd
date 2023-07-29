@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  jenkins:
+    image: jenkins/jenkins:latest
+    container_name: jenkins
+    user: root
+    ports:
+      - "8585:8080"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_TLS_CERTDIR=/certs
+      - DOCKER_TLS_VERIFY=0
+      - DOCKER_CERT_PATH=/certs/client
+    networks:
+      - jenkins-net
+
+  jenkins-agent:
+    container_name: jenkins-agent
+    image: alpine/socat
+    command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
+    ports:
+      - "2379:2375"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jenkins-net
+        
+  docker-registry:
+    image: registry:2
+    container_name: docker-registry
+    ports:
+      - "5000:5000"
+    restart: always
+    volumes:
+      - registry_data:/var/lib/registry
+
+networks:
+  jenkins-net:
+
+volumes:
+  jenkins_data:
+  registry_data:

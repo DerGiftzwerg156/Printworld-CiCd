@@ -1,0 +1,11 @@
+# Verwende das offizielle "docker:stable" Image als Basis
+FROM docker:stable
+
+# Java-Pakete installieren
+RUN apk update && apk add --no-cache openjdk8
+
+# Setze die JAVA_HOME Umgebungsvariable (optional, aber empfohlen)
+ENV JAVA_HOME /usr/lib/jvm/default-jvm
+
+# Setze den PATH, um den Java-Binärpfad einzuschließen (optional, aber empfohlen)
+ENV PATH $PATH:$JAVA_HOME/bin
